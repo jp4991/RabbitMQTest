@@ -12,6 +12,7 @@ namespace Consumer2
 	{
 		static void Main(string[] args)
 		{
+			Console.WriteLine($"{DateTime.Now} Consumer 2 is running");
 			var rawRabbitOptions = new RawRabbitOptions
 			{
 				ClientConfiguration = GetRawRabbitConfiguration()
@@ -29,8 +30,8 @@ namespace Consumer2
 						F.Consume(c => c
 							.WithRoutingKey("createinvoicecommand1"))
 						.OnDeclaredExchange(E => E
-							.WithName("amq.direct")
-							.WithType(ExchangeType.Direct))
+							.WithName("amq.topic")
+							.WithType(ExchangeType.Topic))
 						.FromDeclaredQueue(q => q
 							.WithName("createinvoicecommand1"))
 						));

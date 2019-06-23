@@ -20,7 +20,7 @@ namespace Producer
 			{
 				var message = random.Next(1, 1000);
 				var cmd = new CreateInvoiceCommand() { Name = message .ToString() };
-				busClient.PublishAsync(cmd, CFG => CFG.UsePublishConfiguration(C => C.OnExchange("amq.direct")
+				busClient.PublishAsync(cmd, CFG => CFG.UsePublishConfiguration(C => C.OnExchange("amq.topic")
 					.WithRoutingKey("createinvoicecommand1")
 					));
 				Console.WriteLine($"{DateTime.Now} Sended: {cmd.Name}");

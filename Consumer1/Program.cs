@@ -1,6 +1,7 @@
 ﻿using Consumer1.Commands;
 using RawRabbit;
 using RawRabbit.Configuration;
+using RawRabbit.Configuration.Exchange;
 using RawRabbit.Instantiation;
 using System;
 using System.Threading.Tasks;
@@ -11,19 +12,34 @@ namespace Consumer1
 	{
 		static void Main(string[] args)
 		{
+			Console.WriteLine($"{DateTime.Now} Consumer 1 is running");
 			var rawRabbitOptions = new RawRabbitOptions
 			{
 				ClientConfiguration = GetRawRabbitConfiguration()
 			};
 			var busClient = RawRabbitFactory.CreateSingleton();
 
-			var qq = busClient.SubscribeAsync<CreateInvoiceCommand>(async (msg) =>
+
+			try
 			{
-				await Handle(msg);
-			},
-				CFG => CFG.UseSubscribeConfiguration(F => F.OnDeclaredExchange(E => E.WithName(""))
-					.FromDeclaredQueue(q => q.WithName("createinvoicecommand")))
-			);
+				var qq = busClient.SubscribeAsync<CreateInvoiceCommand>(async (msg) =>
+				{
+					await Handle(msg);
+				},
+					CFG => CFG.UseSubscribeConfiguration(F =>
+						F.Consume(c => c
+							.WithRoutingKey("createinvoicecommand1"))
+						.OnDeclaredExchange(E => E
+							.WithName("amq.topic")
+							.WithType(ExchangeType.Topic))
+						.FromDeclaredQueue(q => q
+							.WithName("createinvoicecommand2"))
+						));
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
 
 			Console.ReadKey();
 		}
